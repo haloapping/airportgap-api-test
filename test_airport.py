@@ -211,3 +211,89 @@ def test_get_airport_by_invalid_id():
                 }
             ]
         }
+
+
+@allure.id("TC008")
+@allure.label("positive case")
+@allure.tag("airport")
+@allure.title("get distance airport using valid id")
+def test_airport_distance_valid_from_to():
+    with allure.step("Hit endpoint"):
+        resp = httpx.post(
+            url=f"{BASE_URL}/airports/distance",
+            params={
+                "from": "KIX",
+                "to": "NRT",
+            },
+        )
+
+    with allure.step("Check status code"):
+        assert resp.status_code == 200
+
+    with allure.step("Check body response"):
+        assert resp.json() == {
+            "data": {
+                "attributes": {
+                    "from_airport": {
+                        "altitude": 26,
+                        "city": "Osaka",
+                        "country": "Japan",
+                        "iata": "KIX",
+                        "icao": "RJBB",
+                        "id": 3158,
+                        "latitude": "34.427299",
+                        "longitude": "135.244003",
+                        "name": "Kansai International Airport",
+                        "timezone": "Asia/Tokyo",
+                    },
+                    "kilometers": 490.8053652969214,
+                    "miles": 304.76001022047103,
+                    "nautical_miles": 264.82908133654655,
+                    "to_airport": {
+                        "altitude": 141,
+                        "city": "Tokyo",
+                        "country": "Japan",
+                        "iata": "NRT",
+                        "icao": "RJAA",
+                        "id": 1721,
+                        "latitude": "35.764702",
+                        "longitude": "140.386002",
+                        "name": "Narita International Airport",
+                        "timezone": "Asia/Tokyo",
+                    },
+                },
+                "id": "KIX-NRT",
+                "type": "airport_distance",
+            }
+        }
+
+
+@allure.id("TC009")
+@allure.label("negative case")
+@allure.tag("airport")
+@allure.title("get distance airport using invalid value from-to")
+def test_airport_distance_invalid_from_to():
+    distances = [["XXX", "YYY"], ["KIX", "XXX"], ["XXX", "NRT"]]
+    for distance in distances:
+        with allure.step("Hit endpoint"):
+            resp = httpx.post(
+                url=f"{BASE_URL}/airports/distance",
+                params={
+                    "from": distance[0],
+                    "to": distance[1],
+                },
+            )
+
+        with allure.step("Check status code"):
+            assert resp.status_code == 422
+
+        with allure.step("Check body response"):
+            assert resp.json() == {
+                "errors": [
+                    {
+                        "status": "422",
+                        "title": "Unable to process request",
+                        "detail": "Please enter valid 'from' and 'to' airports.",
+                    }
+                ]
+            }
