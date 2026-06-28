@@ -56,6 +56,7 @@ def test_token_email_unregistered():
         }
         assert resp.json() == body_resp
 
+
 @allure.id("TC003")
 @allure.label("negative case")
 @allure.tag("token")
